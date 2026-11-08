@@ -32,16 +32,17 @@ no scenes, no nodes.
 ## Bases, tiers and properties
 
 A base's **props** are the baseline every item of it carries: a weapon's `weapon_damage`, an
-armour piece's `armour`, `evasion` and/or `energy_shield`. They roll in the base's own fixed
-range, so the base matters: an Iron Sallet (17–21 armour) beats a Bronze Helm (10–13) before any
-affix lands.
+armour piece's `armour`, `evasion` and/or `energy_shield`, a shield's `block` too. They roll in
+the base's own fixed range, so the base matters: an Iron Sallet (12–15 armour) beats a Bronze Helm
+(9–11) before any affix lands.
 
 Each base has a **level**, the item level it starts dropping at. Item levels run 1–84
 (`maxLevel`), as in Path of Exile.
 
-**Body armour** follows Path of Exile's body armour ladder, on its own item levels. It has three
-defences and every pair of them. Each of the six lines has ten tiers from item level 1, 9, 17, 25,
-35, 45, 53, 62, 73 and 84, plus one special base at level 64–71:
+**Armour** follows Path of Exile's armour ladders, on its own item levels. Body armour, helms,
+boots and gloves each have three defences and every pair of them. Each of the six lines has ten
+tiers from item level 1, 9, 17, 25, 35, 45, 53, 62, 73 and 84, plus one special base at level
+64–71. Body armour's lines:
 
 | Line | Tiers | Gives | Special |
 |---|---|---|---|
@@ -60,13 +61,38 @@ lopsided toward one side or traded for its implicit. Energy shield runs at about
 armour's scale. A game that doesn't implement `energy_shield` never drops the robe, mail or garb
 lines.
 
-Helm and boots still run two lines of six tiers and three exotic hybrids:
+Helms, boots and gloves run the same lines and levels at PoE's share of body armour's defence: a
+helm about half (Starmetal Helm 53–66 armour), boots and gloves about 30% (Starmetal Greaves
+32–40). Their pieces are named for the slot: a plate helm, greaves and gauntlets; a leather hood,
+boots and bracers; a robe line's circlet, slippers and gloves; a scale barbute; a mail coif; a
+garb mask, footwraps and mitts. The hybrid specials are sets across all four slots: Dragonscale
+(fire resistance), Rimeguard (cold resistance) and Bloodbound (max health). The pure-line
+specials differ by slot:
 
-| Line | Tiers (from item level 1, 16, 31, 46, 63, 75) | Gives |
+| Slot | Plate | Leather | Robe |
+|---|---|---|---|
+| Helm | Bastion Helm: max health | Nightstalker Hood: crit chance | Seer's Circlet: cooldown speed |
+| Boots | Bastion Greaves: max health | Nightstalker Boots: movement speed | Seer's Slippers: cooldown speed |
+| Gloves | Brawler's Gauntlets: physical damage | Nightstalker Bracers: projectile damage | Seer's Gloves: damage |
+
+**Shields** follow PoE's shields instead: ten tiers from item level 1 to 70 (1, 8, 16, 23, 30, 38,
+46, 54, 62, 70), any class may carry one, and every shield has a `block` chance (22–26%) besides
+its defence. Their tiers cycle three builds rather than climbing straight. A light shield (hide,
+reed, wicker) has the most block and the most of its line's implicit. A balanced one (wood) sits
+in the middle. A heavy one (metal) has the most defence, the least block, and little or none of
+the implicit. So a newer light shield can carry less armour than the heavy one before it.
+
+| Line | Gives | Implicit (light → heavy) |
 |---|---|---|
-| Metal | wood → bronze → iron → steel → dwarven steel → mithril | armour |
-| Leather | hide → leather → studded → wolfskin → shadowsilk → wyrmskin | evasion |
-| Exotic | bone (24), crystal (41), dragonscale (71) | both, or one, plus an implicit |
+| Pavise | armour | max health, 8–12 / 12–16 / 4–8 |
+| Buckler | evasion | movement speed, 6% / 4% / 2% |
+| Ward | energy shield | damage, 8–12% / 4–8% / none |
+| Targe | armour + evasion | max health/s, 0.15–0.2% / 0.08–0.12% / none |
+| Heater | armour + energy shield | a resistance (fire, then cold, then lightning), 10–12% / 6–8% / none |
+| Parma | evasion + energy shield | dodge chance, 4–5% / 3–4% / 2–3% |
+
+A game that doesn't implement `block` never drops a shield. `of Deflection` adds block chance on a
+shield.
 
 Weapons climb the same way, one line per class (axes, bows, staves), from item level 1 to 75.
 Within a slot, a base drops

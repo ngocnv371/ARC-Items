@@ -18,6 +18,9 @@ ICONS = ROOT / "icons"
 FRAME = ROOT / "tools" / "panel_frame.png"
 BORDER = 12 / 256   # panel_frame's gold band, as a share of its width
 CORNER = 34 / 256   # the corner gems reach this far in
+# Renders whose art fools the frame finder into cutting too deep (a pale or metal rim reaching the
+# render's own frame reads as more frame): how many frames to peel at most.
+MAX_PEELS = {"silver_ward": 1, "reed_parma": 1, "ghostwood_parma": 1, "voidsteel_parma": 1}
 
 
 def is_frame(p):
@@ -73,7 +76,7 @@ def frame_icons(bases=(), size=256):
         # Some renders nest a thin inner frame inside the outer one, so keep peeling while every
         # side still finds a frame to cut. A real frame is about as wide on every side; pale art
         # reads as frame on one or two sides only.
-        for peel in range(3):
+        for peel in range(MAX_PEELS.get(path.stem, 3)):
             w, h = art.size
             sides = [inset(art, s) for s in "ltrb"]
             if peel == 0 and max(sides) - min(sides) > 16:

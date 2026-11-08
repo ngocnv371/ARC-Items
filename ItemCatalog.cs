@@ -60,6 +60,8 @@ public static class ItemCatalog
             ItemSlot.Helm => metal ? "iron_helm" : "leather_cap",
             ItemSlot.Armour => metal ? "chain_mail" : "jerkin",
             ItemSlot.Boots => metal ? "greaves" : "light_boots",
+            ItemSlot.Gloves => metal ? "iron_gauntlets" : "leather_bracers",
+            ItemSlot.Shield => metal ? "iron_pavise" : "willow_buckler",
             ItemSlot.Amulet => "bone_charm",
             _ => "copper_ring",
         };

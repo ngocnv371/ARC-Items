@@ -4,7 +4,8 @@ using Godot;
 
 namespace Arc.Items;
 
-public enum ItemSlot { Weapon, Helm, Armour, Boots, Amulet, Ring }
+/// <summary>Where an item is worn. New slots go at the end, so a saved slot number keeps its meaning.</summary>
+public enum ItemSlot { Weapon, Helm, Armour, Boots, Amulet, Ring, Gloves, Shield }
 
 /// <summary>
 /// The stats the library itself knows by name: a base's properties. Every other stat is just a
@@ -23,6 +24,9 @@ public static class ItemStats
 
     /// <summary>A robe (or mail, or garb) base's defence: the game decides what it absorbs.</summary>
     public const string EnergyShield = "energy_shield";
+
+    /// <summary>A shield's chance to block a hit (0.24 is 24%): the game decides what a block stops.</summary>
+    public const string Block = "block";
 }
 
 /// <summary>

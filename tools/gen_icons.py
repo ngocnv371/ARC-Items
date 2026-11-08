@@ -161,6 +161,37 @@ SUBJECTS = {
                   "ribcage of bones over dark leather, bone shoulder plates, lashed with leather cords"),
     "crystal_raiment": f"a flowing robe raiment set with shards {CRYSTAL}",
     "dragonscale_mail": f"a scale mail chest armour {DRAGON}",
+    # The armour ladders' specials (helm, boots, gloves); the rest compose from their material (LOOK).
+    "bastion_helm": (f"an empty massive full helm with a tall crest shaped like castle battlements {MITHRIL}"),
+    "nightstalker_hood": f"an empty assassin's hood with a face scarf, {SHADOWSILK}",
+    "seers_circlet": ("a slender silver circlet with a large glowing violet eye shaped gem at its brow, "
+                      "mystical"),
+    "rimeguard_coif": ("an empty chainmail coif hood of frosted pale blue steel rings rimed with ice, small "
+                       "icicles hanging from it, glowing icy blue runes"),
+    "bloodbound_mask": ("an eerie empty face mask of dark crimson leather and black silk, veins of glowing "
+                        "blood red running over it, a ruby set in its brow"),
+    "bearskin_bracers": ("a pair of empty leather bracers and gloves trimmed with thick shaggy dark brown "
+                         "bear fur, bear claws on the knuckles, no animal, no head, no face"),
+    "hide_pavise": f"a tall wide rectangular wooden tower shield seen from the front, {HIDE}, stretched over it",
+    "reed_parma": ("a small round shield, a solid flat disc of tightly woven green brown reeds bound with "
+                   "twine, seen from the front, with one sharp iron spike sticking out of its centre"),
+    "bastion_greaves": f"a pair of massive armoured greaves with knee guards shaped like battlements {MITHRIL}",
+    "nightstalker_boots": f"a pair of soft silent assassin's boots with many small buckles, {SHADOWSILK}",
+    "seers_slippers": ("a pair of deep violet pointed slippers embroidered with a small glowing eye on each, "
+                       "mystical"),
+    "rimeguard_boots": ("a pair of chainmail boots of frosted pale blue steel rimed with ice, icicles at "
+                        "their cuffs, glowing icy blue runes"),
+    "bloodbound_footwraps": ("a pair of boots wrapped in dark crimson leather bands, veins of glowing blood "
+                             "red running over them"),
+    "brawlers_gauntlets": f"a pair of heavy spiked plate gauntlets with studded knuckles {MITHRIL}",
+    "nightstalker_bracers": f"a pair of sleek archer's bracers and gloves with a quiver strap buckle, {SHADOWSILK}",
+    "seers_gloves": ("a pair of long deep violet gloves embroidered with a small glowing eye on each back, "
+                     "mystical"),
+    "dragonscale_gauntlets": f"a pair of clawed armoured gauntlets {DRAGON}",
+    "rimeguard_gloves": ("a pair of chainmail gloves of frosted pale blue steel rimed with ice, icicles at "
+                         "their cuffs, glowing icy blue runes"),
+    "bloodbound_mitts": ("a pair of fingerless mitts of dark crimson leather, veins of glowing blood red "
+                         "running over them, a ruby on each"),
     # Body armour, the rest of the ladder: plate (armour), coats (evasion), robes (energy shield),
     # scale (armour/evasion), chainmail (armour/energy shield), garb (evasion/energy shield).
     "copper_breastplate": f"a simple breastplate cuirass {COPPER}",
@@ -247,12 +278,100 @@ SUBJECTS = {
     "dragonscale_boots": f"a pair of clawed armoured boots {DRAGON}",
 }
 
-def render(base: str) -> bool:
+# The rest of the armour ladders (helm, boots, gloves, shield) compose their prompt from the base:
+# its slot and line give the shape, its "material" the look. SUBJECTS above wins where it names one.
+LOOK = {
+    "wood": WOOD, "copper": COPPER, "bronze": BRONZE, "iron": IRON, "steel": STEEL, "tempered steel": TEMPERED,
+    "dwarven steel": DWARVEN, "mithril": MITHRIL, "adamant": ADAMANT, "starmetal": STARMETAL,
+    "hide": HIDE, "rawhide": RAWHIDE, "leather": LEATHER, "studded leather": STUDDED, "wolfskin": WOLFSKIN,
+    "bearskin": BEARSKIN, "shadowsilk": SHADOWSILK, "wyrmskin": WYRMSKIN, "manticore hide": MANTICORE,
+    "wyvernhide": WYVERNHIDE, "linen": LINEN, "wool": WOOL, "velvet": VELVET, "runecloth": RUNECLOTH,
+    "moonsilk": MOONSILK, "spiritweave": SPIRITWEAVE, "starweave": STARWEAVE, "voidsilk": VOIDSILK,
+    "aetherweave": AETHERWEAVE, "celestial silk": CELESTIAL, "felt": FELT, "ghostleather": GHOST,
+    "wraithskin": WRAITH, "phantomweave": PHANTOM, "eclipse silk": ECLIPSE, "dragonscale": DRAGON,
+    "wyvernscale": "made of overlapping deep teal and black wyvern scales with small pale horn spikes, glinting",
+    "starwood": ("made of deep blue black wood speckled with tiny glowing white stars like a night sky, "
+                 "edged in pale gold"),
+    "runed steel": "made of bright steel engraved with faintly glowing pale blue runes",
+    "shade leather": "made of dark charcoal leather that fades into shadow, a faint purple glow at the seams",
+    "mistweave": "made of pale grey misty fabric whose edges dissolve into curling fog",
+    "ashwood": "made of smooth pale grey ashwood planks with a leather rim",
+    "wolfhide": "made of wood covered in stretched grey wolf hide with the fur at its rim",
+    "heartwood": "made of dense deep red brown heartwood with iron banding",
+    "bearhide": "made of wood covered in thick dark brown bear hide, bear claws at its rim",
+    "blackwood": "made of glossy black wood with silver banding",
+    "willow": "made of woven pale willow withies, light and simple",
+    "snakeskin": "covered in patterned olive and black snakeskin over wood",
+    "yew": "made of warm golden yew wood with a polished grain",
+    "hardened leather": "made of thick boiled dark brown hardened leather, ridged and riveted",
+    "drakeskin": "covered in rough dark red drake skin with small scales",
+    "elderwood": "made of ancient pale green tinged elderwood carved with leaves",
+    "bone": "made of pale ivory yellowed bone lashed with dark leather cords",
+    "brass": "made of polished warm yellow brass with engraved circles",
+    "rowan": "made of reddish rowan wood with small red berries carved around it",
+    "antler": "made of pale branching deer antler bound with sinew",
+    "silver": "made of bright polished silver with fine engraving",
+    "wyrmbone": "made of pale ivory wyrm bone with emerald green scale inlays",
+    "wicker": "made of woven light brown wicker, simple and light",
+    "pine": "made of pale yellow pine planks with an iron rim",
+    "oak": "made of sturdy brown oak planks with an iron boss",
+    "dragonhide": "covered in crimson red dragon hide with dark scales, glowing faintly like embers",
+    "birch": "made of white and black flecked birch wood",
+    "hallowed wood": "made of pale wood painted white and gold with a holy sun emblem",
+    "consecrated steel": "made of blued steel with a white enamel face bearing a glowing golden sun emblem",
+    "reed": "made of bound green brown reeds, light and simple",
+    "hexwood": "made of dark wood painted with glowing green witch's hex sigils",
+    "ghostwood": "made of pale bluish white translucent ghostly wood, faintly glowing",
+    "voidsteel": "made of pitch black steel with a swirling purple void glowing in its seams",
+}
+# A tier whose name says more than its material (a Hexed tier is "leather"): its look, by the name's first word.
+NAME_LOOK = {
+    "rusty": "made of old rusty orange brown iron, worn and pitted",
+    "patchwork": "made of mismatched patches of hide and leather with a few small scavenged metal plates sewn on",
+    "embroidered": "made of rich dark red wool with gold embroidery on its cuffs and edges",
+    "hexed": "made of dark leather painted with glowing green witch's hex sigils, small charms and bones tied to it",
+    "ritual": "made of grey cloth with tassels, embroidered all over with faintly glowing pale blue runes",
+    "consecrated": "made of blued steel with white cloth trim bearing a glowing golden sun emblem",
+}
+LINES = {("armour",): 0, ("evasion",): 1, ("energy_shield",): 2, ("armour", "evasion"): 3,
+         ("armour", "energy_shield"): 4, ("energy_shield", "evasion"): 5}
+SHAPE = {   # plate, leather, robe, scale, mail, garb
+    "helm": ["an empty full metal helmet with a visor", "an empty hood", "a slender circlet crown with a gem at its brow",
+             "an empty open faced barbute helmet trimmed with overlapping scales", "an empty chainmail coif hood",
+             "an eerie empty face mask"],
+    "boots": ["a pair of armoured plate greaves and sabatons", "a pair of boots", "a pair of soft pointed slippers",
+              "a pair of boots covered in overlapping scales", "a pair of chainmail boots with plated toes",
+              "a pair of boots wrapped in cloth bands"],
+    "gloves": ["a pair of armoured plate gauntlets", "a pair of bracers and gloves", "a pair of fine long gloves",
+               "a pair of gauntlets covered in overlapping scales", "a pair of chainmail gloves with plated cuffs",
+               "a pair of fingerless mitts"],
+    "shield": ["a tall wide rectangular tower shield seen from the front, its whole face shown",
+               "a small perfectly circular buckler shield seen from the front, a flat round disc with a small "
+               "metal boss, not pointed",
+               "a mystical spirit shield with a glowing sigil at its centre", "a round targe shield with a boss",
+               "a heater shield, shaped like a kite",
+               "a small perfectly circular round shield seen from the front with one long sharp metal spike "
+               "sticking out of its centre, not pointed at the bottom"],
+}
+
+
+def subject(base: dict) -> str | None:
+    """The base's prompt subject: SUBJECTS' own, else composed from its slot, line and material."""
+    if base["id"] in SUBJECTS:
+        return SUBJECTS[base["id"]]
+    line = LINES.get(tuple(sorted(k for k in base.get("props", {}) if k != "block")))
+    look = NAME_LOOK.get(base["name"].split()[0].lower()) or LOOK.get(base.get("material", ""))
+    if base["slot"] not in SHAPE or line is None or look is None:
+        return None
+    return f"{SHAPE[base['slot']][line]} {look}"
+
+
+def render(base: str, subject_text: str) -> bool:
     DRAFTS.mkdir(parents=True, exist_ok=True)
     result = subprocess.run(
         ["node", str(GEN), "--prompt", "-", "--negative", NEGATIVE,
          "--width", "768", "--height", "768", "--out", str(DRAFTS / f"{base}.png"), "--quiet"],
-        input=FRAME.format(SUBJECTS[base]), capture_output=True, text=True, encoding="utf-8")
+        input=FRAME.format(subject_text), capture_output=True, text=True, encoding="utf-8")
     line = (result.stdout.strip().splitlines() or ["{}"])[-1]
     try:
         return bool(json.loads(line).get("ok"))
@@ -286,21 +405,23 @@ def main() -> None:
     parser.add_argument("--no-render", action="store_true")
     args = parser.parse_args()
     catalog = json.loads((ROOT / "data" / "items.json").read_text(encoding="utf-8"))
-    live = [b["id"] for b in catalog["bases"] if not b.get("retired")]
+    bases = {b["id"]: b for b in catalog["bases"]}
+    subjects = {i: subject(b) for i, b in bases.items()}
+    live = [i for i, b in bases.items() if not b.get("retired")]
     if args.bases:
         todo = args.bases
     else:
-        todo = [b for b in live if b in SUBJECTS and not (ICONS / f"{b}.png").exists()]
-        undrawn = [b for b in live if b not in SUBJECTS and not (ICONS / f"{b}.png").exists()]
+        todo = [b for b in live if subjects[b] and not (ICONS / f"{b}.png").exists()]
+        undrawn = [b for b in live if not subjects[b] and not (ICONS / f"{b}.png").exists()]
         if undrawn:
             print("no prompt yet (shows a stand-in):", ", ".join(undrawn))
     if not args.no_render:
-        unknown = [b for b in todo if b not in SUBJECTS]
+        unknown = [b for b in todo if not subjects.get(b)]
         if unknown:
             sys.exit(f"no prompt for: {', '.join(unknown)}")
         done = []
         for base in todo:
-            ok = render(base)
+            ok = render(base, subjects[base])
             print(base, "rendered" if ok else "FAILED", flush=True)
             if ok:
                 done.append(base)
