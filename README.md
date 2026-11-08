@@ -109,6 +109,25 @@ before its base had a prop shows the middle of the prop's range; one saved with 
 | `Chest.cs` | An unopened chest, rolled when opened |
 | `data/items.json` | The shared catalog |
 | `icons/<base>.png` | Each base's icon, square, framed; `ItemCatalog.IconPath` finds it (or the closest drawn one) |
+| `tools/` | The icon pipeline (below); Godot skips the folder (`.gdignore`) |
+
+## Drawing icons
+
+`tools/gen_icons.py` holds a prompt for every base and draws the icons with the local ComfyUI
+(`D:/dev/comfy-helper`). It renders `tools/drafts/<base>.png`, which isn't committed. Then it
+frames the draft under the shared ring cut from `tools/panel_frame.png` (`tools/frame_icons.py`),
+writing `icons/<base>.png`. Finally it imports the icon with a windowless Godot (`--headless`, on a
+throwaway project that mounts this repo at `res://addons/arc_items`), so the `.import` file is the
+one a game would write.
+
+```bash
+python tools/gen_icons.py                     # every base with a prompt and no icon yet
+python tools/gen_icons.py bearskin_coat       # redraw one
+python tools/gen_icons.py --no-render x y     # re-frame and re-import drafts already there
+```
+
+A new base gets its icon once you add its prompt to `SUBJECTS`. Name its material and spell out
+the colour, so tiers read apart at a glance.
 
 ## Games using it
 
