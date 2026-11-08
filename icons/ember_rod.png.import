@@ -3,6 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dlv0ssslymcol"
+path="res://.godot/imported/ember_rod.png-d0e27d33f8987f007304aec63e00cf29.ctex"
 metadata={
 "vram_texture": false
 }
@@ -10,6 +11,7 @@ metadata={
 [deps]
 
 source_file="res://addons/arc_items/icons/ember_rod.png"
+dest_files=["res://.godot/imported/ember_rod.png-d0e27d33f8987f007304aec63e00cf29.ctex"]
 
 [params]
 
