@@ -37,8 +37,9 @@ public static class ItemCatalog
 
     /// <summary>
     /// The path of a base's icon (<c>icons/&lt;base&gt;.png</c>, square, the art carrying its own
-    /// frame). For a base not drawn yet, the drawn one closest to it: a metal helm shows the Iron
-    /// Helm, a leather one the Leather Cap. Null for an unknown base.
+    /// frame; rarity-neutral, so a game tints it). For a base not drawn yet, the drawn one closest
+    /// to it: a metal helm shows the Iron Helm, a leather one the Leather Cap, a mage's weapon the
+    /// Oak Staff. Null for an unknown base.
     /// </summary>
     public static string? IconPath(string baseId)
     {
@@ -55,7 +56,7 @@ public static class ItemCatalog
         var metal = def.Prop(ItemStats.Armour) != null;
         return def.Slot switch
         {
-            ItemSlot.Weapon => "great_axe",
+            ItemSlot.Weapon => def.Classes.FirstOrDefault() switch { "archer" => "hunting_bow", "mage" => "oak_staff", _ => "great_axe" },
             ItemSlot.Helm => metal ? "iron_helm" : "leather_cap",
             ItemSlot.Armour => metal ? "chain_mail" : "jerkin",
             ItemSlot.Boots => metal ? "greaves" : "light_boots",
