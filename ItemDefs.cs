@@ -15,11 +15,14 @@ public static class ItemStats
     /// <summary>A weapon's damage, which the game's weapon skills deal a share of.</summary>
     public const string WeaponDamage = "weapon_damage";
 
-    /// <summary>A metal (or bone, or dragonscale) base's defence: the game decides what it stops.</summary>
+    /// <summary>A plate (or scale, or mail) base's defence: the game decides what it stops.</summary>
     public const string Armour = "armour";
 
-    /// <summary>A leather (or silk, or crystal) base's defence: the game decides what it dodges.</summary>
+    /// <summary>A leather (or scale, or garb) base's defence: the game decides what it dodges.</summary>
     public const string Evasion = "evasion";
+
+    /// <summary>A robe (or mail, or garb) base's defence: the game decides what it absorbs.</summary>
+    public const string EnergyShield = "energy_shield";
 }
 
 /// <summary>
@@ -31,13 +34,14 @@ public sealed record RarityDef(int Index, string Id, string Name, int AffixMin, 
 
 /// <summary>
 /// A Legendary's effect, which the game wires up: its numbers, of which those named in
-/// <see cref="Scales"/> grow 10% per item level, and its text with <c>{param:format}</c> holes.
+/// <see cref="Scales"/> grow with item level, to 4.9 times at the max level, and its text with
+/// <c>{param:format}</c> holes.
 /// </summary>
 public sealed record UniqueDef(string Id, string Name, ItemSlot[] Slots, Dictionary<string, float> Params, string[] Scales, string Text)
 {
     /// <summary>Parameter <paramref name="key"/> on an item of <paramref name="level"/>.</summary>
     public float Param(string key, int level) =>
-        Params.GetValueOrDefault(key) * (Scales.Contains(key) ? 1f + (level - 1) * 0.1f : 1f);
+        Params.GetValueOrDefault(key) * (Scales.Contains(key) ? 1f + 3.9f * (level - 1) / Math.Max(1, ItemCatalog.MaxLevel - 1) : 1f);
 
     /// <summary>The text with every hole filled at <paramref name="level"/>.</summary>
     public string Describe(int level) => Regex.Replace(Text, @"\{(\w+)(?::([^}]+))?\}", m =>
@@ -82,7 +86,7 @@ public sealed record StatRoll(string Stat, Vector2 At1, Vector2 AtMax, float Ste
 
 /// <summary>
 /// An item type. Its <see cref="Props"/> are the baseline every item of it carries, rolled within
-/// the base's range: a weapon's damage, an armour piece's armour or evasion. That baseline is what
+/// the base's range: a weapon's damage, an armour piece's armour, evasion or energy shield. That baseline is what
 /// a better base is better at: an Iron Sallet is a sturdier helm than a Wooden Helm before any
 /// affix lands, and local affixes (+% armour) multiply it. Its <see cref="Level"/> is the item
 /// level it starts dropping at; <see cref="Material"/> names its line (wood, bronze, leather,

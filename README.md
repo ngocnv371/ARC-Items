@@ -32,25 +32,50 @@ no scenes, no nodes.
 ## Bases, tiers and properties
 
 A base's **props** are the baseline every item of it carries: a weapon's `weapon_damage`, an
-armour piece's `armour` and/or `evasion`. They roll in the base's own fixed range, so the base
-matters: an Iron Sallet (17–21 armour) beats a Bronze Helm (10–13) before any affix lands.
+armour piece's `armour`, `evasion` and/or `energy_shield`. They roll in the base's own fixed
+range, so the base matters: an Iron Sallet (17–21 armour) beats a Bronze Helm (10–13) before any
+affix lands.
 
-Each base has a **level**, the item level it starts dropping at. Each armour slot runs two lines
-of six tiers and three exotic hybrids:
+Each base has a **level**, the item level it starts dropping at. Item levels run 1–84
+(`maxLevel`), as in Path of Exile.
 
-| Line | Tiers (from item level 1, 8, 15, 22, 30, 36) | Gives |
+**Body armour** follows Path of Exile's body armour ladder, on its own item levels. It has three
+defences and every pair of them. Each of the six lines has ten tiers from item level 1, 9, 17, 25,
+35, 45, 53, 62, 73 and 84, plus one special base at level 64–71:
+
+| Line | Tiers | Gives | Special |
+|---|---|---|---|
+| Plate | wooden → copper → bronze → iron → steel → tempered → dwarven → mithril → adamant → starmetal | armour 3 → 134 | Bastion Plate: less damage taken |
+| Leather | hide → rawhide → leather → studded → wolfskin → bearskin → shadowsilk → wyrmskin → manticore → wyvernhide | evasion 3 → 134 | Nightstalker Garb: movement speed |
+| Robe | linen → woolen → velvet → runecloth → moonsilk → spiritweave → starweave → voidsilk → aetherweave → celestial | energy shield 4 → 90 | Seer's Raiment: cooldown speed |
+| Scale | patchwork → copper → bronze → iron → steel → tempered → dwarven → mithril → adamant → wyvernscale | armour + evasion | Dragonscale Mail: fire resistance, armour-heavy |
+| Mail | rusty → copper → bronze → iron → runed → consecrated → dwarven → mithril → adamant → starmetal | armour + energy shield | Rimeguard Hauberk: cold resistance, shield-heavy |
+| Garb | felt → embroidered → hexed → ritual → shade → mistweave → ghostleather → wraithskin → phantomweave → eclipse | evasion + energy shield | Bloodbound Raiment: max health, shield-heavy |
+
+Like PoE's, the curve starts low and steepens: a starter chest is a token 3–4, mid-game tiers add
+about a quarter each, and the last two tiers jump about 30% apiece. A hybrid carries about 58% of
+a pure base's armour or evasion and 56% of its energy shield in each of its two defences, so the
+two together come to about 115%. A special sits just above the tier before it, with its defence
+lopsided toward one side or traded for its implicit. Energy shield runs at about two-thirds of
+armour's scale. A game that doesn't implement `energy_shield` never drops the robe, mail or garb
+lines.
+
+Helm and boots still run two lines of six tiers and three exotic hybrids:
+
+| Line | Tiers (from item level 1, 16, 31, 46, 63, 75) | Gives |
 |---|---|---|
 | Metal | wood → bronze → iron → steel → dwarven steel → mithril | armour |
 | Leather | hide → leather → studded → wolfskin → shadowsilk → wyrmskin | evasion |
-| Exotic | bone (12), crystal (20), dragonscale (34) | both, or one, plus an implicit |
+| Exotic | bone (24), crystal (41), dragonscale (71) | both, or one, plus an implicit |
 
-Weapons climb the same way, one line per class (axes, bows, staves). Within a slot, a base drops
-half as often for every `baseFalloff` (8) levels it lies below the item level: newer tiers take
+Weapons climb the same way, one line per class (axes, bows, staves), from item level 1 to 75.
+Within a slot, a base drops
+half as often for every `baseFalloff` (17) levels it lies below the item level: newer tiers take
 over, older ones linger. Every slot is equally likely.
 
 **Local** affixes multiply their own item's prop: `of the Bulwark` (+15–80% armour), `of the Fox`
-(evasion), `of Heft` (weapon damage). They only roll on bases that have that prop. So a high tier
-with a good local roll is the best piece, and an exotic base's implicit can still beat it: there
+(evasion), `of the Aegis` (energy shield), `of Heft` (weapon damage). They only roll on bases that have that prop. So a high tier
+with a good local roll is the best piece, and a special base's implicit can still beat it: there
 is something to min-max.
 
 ## The data, and a game's overlay

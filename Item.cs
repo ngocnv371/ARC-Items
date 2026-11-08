@@ -67,9 +67,9 @@ public sealed record Item
     public string Name => UniqueDef?.Name
         ?? (Affixes.Length == 0 ? Def.Name : $"{Def.Name} {ItemCatalog.Affixes[Affixes[0].Id].Name}");
 
-    /// <summary>Gold for breaking it down: the rarity's value, growing with item level.</summary>
+    /// <summary>Gold for breaking it down: the rarity's value, growing with item level to 2.95 times at the max level.</summary>
     [JsonIgnore]
-    public int SalvageValue => Mathf.RoundToInt(RarityDef.Salvage * (1f + (Level - 1) / 20f));
+    public int SalvageValue => Mathf.RoundToInt(RarityDef.Salvage * (1f + 1.95f * (Level - 1) / Mathf.Max(1, ItemCatalog.MaxLevel - 1)));
 
     /// <summary>What a trader asks for it: four times its salvage, half as much again for every affix.</summary>
     [JsonIgnore]
