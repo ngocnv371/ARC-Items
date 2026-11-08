@@ -35,6 +35,35 @@ public static class ItemCatalog
     /// <summary>Where the library is mounted (its data file is read from here).</summary>
     public static string Root { get; set; } = "res://addons/arc_items";
 
+    /// <summary>
+    /// The path of a base's icon (<c>icons/&lt;base&gt;.png</c>, square, the art carrying its own
+    /// frame). For a base not drawn yet, the drawn one closest to it: a metal helm shows the Iron
+    /// Helm, a leather one the Leather Cap. Null for an unknown base.
+    /// </summary>
+    public static string? IconPath(string baseId)
+    {
+        var path = $"{Root.TrimEnd('/')}/icons/{baseId}.png";
+        if (ResourceLoader.Exists(path))
+            return path;
+        return Bases.GetValueOrDefault(baseId) is { } def && IconStandIn(def) is var standIn && standIn != baseId
+            ? IconPath(standIn)
+            : null;
+    }
+
+    private static string IconStandIn(ItemBase def)
+    {
+        var metal = def.Prop(ItemStats.Armour) != null;
+        return def.Slot switch
+        {
+            ItemSlot.Weapon => "great_axe",
+            ItemSlot.Helm => metal ? "iron_helm" : "leather_cap",
+            ItemSlot.Armour => metal ? "chain_mail" : "jerkin",
+            ItemSlot.Boots => metal ? "greaves" : "light_boots",
+            ItemSlot.Amulet => "bone_charm",
+            _ => "copper_ring",
+        };
+    }
+
     private static readonly string[] Lists = ["rarities", "bases", "affixes", "uniques"];
 
     private static ItemSetup _setup = new();

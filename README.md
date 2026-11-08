@@ -83,6 +83,7 @@ before its base had a prop shows the middle of the prop's range; one saved with 
 | `Equipment.cs` | Worn slots, the bag, unopened chests; hands the bonuses to the game |
 | `Chest.cs` | An unopened chest, rolled when opened |
 | `data/items.json` | The shared catalog |
+| `icons/<base>.png` | Each base's icon, square, framed; `ItemCatalog.IconPath` finds it (or the closest drawn one) |
 
 ## Games using it
 
