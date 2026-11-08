@@ -329,14 +329,23 @@ public static class ItemCatalog
 
     private static Vector2 Range(Variant v) => new(v.AsGodotArray()[0].AsSingle(), v.AsGodotArray()[1].AsSingle());
 
-    /// <summary>A base property: a fixed <c>[low, high]</c>, or <c>{ "at1", "atMax", "step" }</c> to grow with item level. Whole numbers unless a step says otherwise.</summary>
+    /// <summary>
+    /// A base property: a fixed <c>[low, high]</c>, or <c>{ "at1", "atMax", "step" }</c> to grow with
+    /// item level. Whole numbers unless a step says otherwise, or the range has fractions (a
+    /// shield's 0.22 block), which snap to hundredths.
+    /// </summary>
     private static StatRoll Prop(string stat, Variant range)
     {
         if (range.VariantType == Variant.Type.Array)
-            return new StatRoll(stat, Range(range), Range(range), 1f, PropFormat(stat));
+            return new StatRoll(stat, Range(range), Range(range), DefaultStep(Range(range)), PropFormat(stat));
         var d = range.AsGodotDictionary();
-        return new StatRoll(stat, Range(d["at1"]), Range(d["atMax"]), d.TryGetValue("step", out var step) ? step.AsSingle() : 1f, PropFormat(stat));
+        var (at1, atMax) = (Range(d["at1"]), Range(d["atMax"]));
+        var fallback = Mathf.Min(DefaultStep(at1), DefaultStep(atMax));
+        return new StatRoll(stat, at1, atMax, d.TryGetValue("step", out var step) ? step.AsSingle() : fallback, PropFormat(stat));
     }
+
+    private static float DefaultStep(Vector2 range) =>
+        range.X == Mathf.Round(range.X) && range.Y == Mathf.Round(range.Y) ? 1f : 0.01f;
 
     /// <summary>An implicit or affix roll: <c>at1</c>/<c>atMax</c> ranges, or one fixed <c>value</c> range.</summary>
     private static StatRoll Roll(GDict d)
