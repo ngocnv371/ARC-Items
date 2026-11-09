@@ -104,6 +104,12 @@ over, older ones linger. Every slot is equally likely.
 with a good local roll is the best piece, and a special base's implicit can still beat it: there
 is something to min-max.
 
+**Energy shield** has a family of its own besides the bases and `of the Aegis`: `of the Veil` (+x
+energy shield, jewellery), `of the Sanctum` (`energy_shield_mult`, increased maximum energy shield
+over everything worn), `of Replenishing` (`energy_shield_recharge`, increased recharge rate) and
+`of Renewal` (`energy_shield_delay`, the recharge starts that share sooner). How the shield soaks
+and recharges is the game's: it implements those stats or they never roll.
+
 ## The data, and a game's overlay
 
 `data/items.json` holds the shared catalog. The game's files (`ItemSetup.Files`) are laid over it:
