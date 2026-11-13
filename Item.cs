@@ -30,6 +30,24 @@ public sealed record Item
     /// <summary>A Legendary's effect (an id in <see cref="ItemCatalog.Uniques"/>), or null.</summary>
     public string? Unique { get; init; }
 
+    /// <summary>The most an item can be enhanced: +5.</summary>
+    public const int MaxPlus = 5;
+
+    /// <summary>What each + adds to an item's own numbers (its properties, its implicit, its affixes), as a share: 0.08 is 8%. A game may set it.</summary>
+    public static float PlusStep { get; set; } = 0.08f;
+
+    /// <summary>
+    /// How far it has been enhanced, 0 to <see cref="MaxPlus"/>: every one makes each of its numbers
+    /// <see cref="PlusStep"/> larger (a Legendary's effect aside). A game enhances an item by
+    /// putting <c>item with { Plus = item.Plus + 1 }</c> in its place.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public int Plus { get; init; }
+
+    /// <summary>What <see cref="Plus"/> multiplies the item's numbers by.</summary>
+    [JsonIgnore]
+    public float Enhanced => 1f + PlusStep * Math.Clamp(Plus, 0, MaxPlus);
+
     [JsonIgnore]
     public UniqueDef? UniqueDef => Unique != null ? ItemCatalog.Uniques.GetValueOrDefault(Unique) : null;
 
@@ -54,18 +72,19 @@ public sealed record Item
         return Def.Prop(stat)?.Middle(Level) ?? 0f;
     }
 
-    /// <summary>The base property <paramref name="stat"/> with this item's local affixes on it (+40% armour).</summary>
+    /// <summary>The base property <paramref name="stat"/> with this item's local affixes on it (+40% armour), enhanced.</summary>
     public float Prop(string stat) =>
-        BaseProp(stat) * (1f + Affixes.Where(a => ItemCatalog.Affixes[a.Id] is { Local: true } def && def.Roll.Stat == stat).Sum(a => a.Value));
+        BaseProp(stat) * Enhanced * (1f + Affixes.Where(a => ItemCatalog.Affixes[a.Id] is { Local: true } def && def.Roll.Stat == stat).Sum(a => a.Value));
 
     /// <summary>The weapon damage it gives (0 off weapons).</summary>
     [JsonIgnore]
     public float WeaponDamage => Prop(ItemStats.WeaponDamage);
 
-    /// <summary>A Legendary's unique name ("Emberstep"), else the base's followed by its first affix's ("Longbow of Haste").</summary>
+    /// <summary>A Legendary's unique name ("Emberstep"), else the base's followed by its first affix's ("Longbow of Haste"); then how far it is enhanced ("+2").</summary>
     [JsonIgnore]
-    public string Name => UniqueDef?.Name
-        ?? (Affixes.Length == 0 ? Def.Name : $"{Def.Name} {ItemCatalog.Affixes[Affixes[0].Id].Name}");
+    public string Name => (UniqueDef?.Name
+        ?? (Affixes.Length == 0 ? Def.Name : $"{Def.Name} {ItemCatalog.Affixes[Affixes[0].Id].Name}"))
+        + (Plus > 0 ? $" +{Plus}" : "");
 
     /// <summary>Gold for breaking it down: the rarity's value, growing with item level to 2.95 times at the max level.</summary>
     [JsonIgnore]
@@ -84,11 +103,11 @@ public sealed record Item
             if (Prop(prop.Stat) is var value and > 0f)
                 yield return (prop.Stat, value);
         if (Def.Implicit is { } implicitRoll)
-            yield return (implicitRoll.Stat, Implicit);
+            yield return (implicitRoll.Stat, Implicit * Enhanced);
         // A local affix is already in its property above.
         foreach (var affix in Affixes)
             if (ItemCatalog.Affixes[affix.Id] is { Local: false } def)
-                yield return (def.Roll.Stat, affix.Value);
+                yield return (def.Roll.Stat, affix.Value * Enhanced);
     }
 
     /// <summary>Each stat that wearing <paramref name="item"/> in place of <paramref name="worn"/> (null: an empty slot) changes, and by how much.</summary>
@@ -118,9 +137,9 @@ public sealed record Item
         foreach (var prop in Def.Props)
             yield return prop.Text(Prop(prop.Stat));
         if (Def.Implicit is { } implicitRoll)
-            yield return implicitRoll.Text(Implicit);
+            yield return implicitRoll.Text(Implicit * Enhanced);
         foreach (var affix in Affixes)
-            yield return ItemCatalog.Affixes[affix.Id].Roll.Text(affix.Value);
+            yield return ItemCatalog.Affixes[affix.Id].Roll.Text(affix.Value * (ItemCatalog.Affixes[affix.Id].Local ? 1f : Enhanced));
         if (UniqueDef is { } unique)
             yield return $"◆ {unique.Describe(Level)}";
     }

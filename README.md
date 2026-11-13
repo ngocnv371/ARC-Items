@@ -135,30 +135,33 @@ before its base had a prop shows the middle of the prop's range; one saved with 
 |---|---|
 | `ItemDefs.cs` | `ItemSlot`, `ItemStats`, `RarityDef`, `ItemBase`, `AffixDef`, `UniqueDef`, `StatRoll`, `DropRule` |
 | `ItemCatalog.cs` | `ItemSetup`, loading and merging the data, what may roll, tooltip wording |
-| `Item.cs` | `Item` (props, implicit, affixes, bonuses, tooltip lines, comparison) |
+| `Item.cs` | `Item` (props, implicit, affixes, bonuses, tooltip lines, comparison); `Plus`, 0 to 5, is how far it is enhanced: each + makes its own numbers `Item.PlusStep` (8%) larger and shows in its name. A game enhances by putting `item with { Plus = item.Plus + 1 }` in the item's place |
 | `ItemRoller.cs` | Rolling items, and `Odds` (which bases a class finds at a level, and how often) |
 | `Equipment.cs` | Worn slots, the bag, unopened chests; hands the bonuses to the game |
 | `Chest.cs` | An unopened chest, rolled when opened |
 | `data/items.json` | The shared catalog |
-| `icons/<base>.png` | Each base's icon, square, framed; `ItemCatalog.IconPath` finds it (or the closest drawn one) |
+| `icons/<base>.png` | Each base's icon, square: the object alone, cut out, for a game to lay on a tile of its own; `ItemCatalog.IconPath` finds it (or the closest drawn one) |
 | `tools/` | The icon pipeline (below); Godot skips the folder (`.gdignore`) |
 
 ## Drawing icons
 
-`tools/gen_icons.py` holds a prompt for every base and draws the icons with the local ComfyUI
-(`D:/dev/comfy-helper`). It renders `tools/drafts/<base>.png`, which isn't committed. Then it
-frames the draft under the shared ring cut from `tools/panel_frame.png` (`tools/frame_icons.py`),
-writing `icons/<base>.png`. Finally it imports the icon with a windowless Godot (`--headless`, on a
+`tools/gen_icons.py` holds a prompt for every base and draws the icons with the local ComfyUI,
+through `D:/dev/comfy-helper`'s `comfy-icon.mjs` (Z-Image Turbo, then BiRefNet background removal).
+It renders `tools/drafts/<base>.png`, the object alone on a transparent background, which isn't
+committed. Then it trims the draft to the object and writes `icons/<base>.png`, 256 px, with no
+frame and no backdrop: a game lays the icon on a tile of its own. A base's seed is fixed by its
+id, so a redraw gives the same picture. Finally it imports the icon with a windowless Godot (`--headless`, on a
 throwaway project that mounts this repo at `res://addons/arc_items`), so the `.import` file is the
 one a game would write.
 
 ```bash
 python tools/gen_icons.py                     # every base with a prompt and no icon yet
 python tools/gen_icons.py bearskin_coat       # redraw one
-python tools/gen_icons.py --no-render x y     # re-frame and re-import drafts already there
+python tools/gen_icons.py --all               # redraw every base (an hour or two)
+python tools/gen_icons.py --no-render x y     # place and re-import drafts already there
 ```
 
-A new base gets its icon once you add its prompt to `SUBJECTS`. Name its material and spell out
+A new base gets its icon once you add its prompt to `SUBJECTS` (one with no prompt and no line to compose one from is drawn from its name). Name its material and spell out
 the colour, so tiers read apart at a glance.
 
 ## Games using it

@@ -1,17 +1,20 @@
-"""Renders ARC Items' item icons with the local ComfyUI (D:/dev/comfy-helper), in the look the icons
-were first drawn in (Rogue Guys'), then frames and imports them:
+"""Renders ARC Items' item icons with the local ComfyUI, through D:/dev/comfy-helper's comfy-icon.mjs
+(Z-Image Turbo, then BiRefNet background removal), and imports them:
 
-  1. render  tools/drafts/<base>.png, 768 px, through comfy-image.mjs (drafts are not committed)
-  2. frame   icons/<base>.png, 256 px, under the shared ring (tools/frame_icons.py)
+  1. render  tools/drafts/<base>.png, 768 px, the object alone on a transparent background
+             (drafts are not committed)
+  2. place   icons/<base>.png, 256 px: the draft trimmed to the object, with a little room round it.
+             No frame and no backdrop: a game lays the icon on a tile of its own.
   3. import  icons/<base>.png.import, by a windowless Godot (--headless) on a throwaway project
              that mounts this repo at res://addons/arc_items, the path the games mount it at
 
 With no names it draws every base in data/items.json that has a prompt below and no icon yet;
-named bases are redrawn. --no-render frames and imports drafts already there.
+named bases are redrawn, and --all redraws every one. --no-render places and imports drafts
+already there. A base's seed is fixed by its id, so a redraw gives the same picture.
 
-    python tools/gen_icons.py [base ...] [--no-render]
+    python tools/gen_icons.py [base ...] [--all] [--no-render]
 
-Set COMFY_IMAGE to another comfy-image.mjs, GODOT to another Godot 4.7 .NET editor.
+Set COMFY_ICON to another comfy-icon.mjs, GODOT to another Godot 4.7 .NET editor.
 """
 import argparse
 import json
@@ -19,22 +22,29 @@ import os
 import subprocess
 import sys
 import tempfile
+import zlib
 from pathlib import Path
 
-from frame_icons import DRAFTS, ICONS, ROOT, frame_icons
+from PIL import Image
 
-GEN = Path(os.environ.get("COMFY_IMAGE", "D:/dev/comfy-helper/comfy-image.mjs"))
+ROOT = Path(__file__).resolve().parent.parent
+DRAFTS = ROOT / "tools" / "drafts"
+ICONS = ROOT / "icons"
+SIZE = 256
+
+GEN = Path(os.environ.get("COMFY_ICON", "D:/dev/comfy-helper/comfy-icon.mjs"))
 GODOT = os.environ.get("GODOT", "D:/installed/godot-4.7.2/Godot_v4.7.2-stable_mono_win64/"
                        "Godot_v4.7.2-stable_mono_win64_console.exe")
 
-FRAME = ("Square fantasy RPG item icon showing {}.\n\n"
-         "A single object, centred and filling the middle of the square, seen clearly against a deep "
-         "purple backdrop with soft vignetting, inside an ornate thin gold frame. No hands, no wearer, "
-         "nothing else in the picture.\n\n"
-         "Glowing vivid colours, high contrast, crisp silhouette with a faint rim light, stylized hand "
-         "painted game UI art in the manner of a dark fantasy action RPG inventory icon.")
-NEGATIVE = ("blurry ugly bad, text, letters, numbers, watermark, multiple icons, grid, person, face, "
-            "mannequin, hands")
+FRAME = ("A painting of one object: {}.\n\n"
+         "A single object, shown whole at a slight three-quarter angle, centred and filling most of the "
+         "square, floating on a perfectly plain flat dark grey background. Nothing else is in the "
+         "picture: no frame, no border, no ground, no cast shadow, no hands, no wearer.\n\n"
+         "Polished hand-painted fantasy equipment art for the inventory of a modern anime RPG: clean confident "
+         "shapes, smooth soft shading, bright crisp highlights and a thin light rim along the edges, "
+         "rich saturated colours, a sharp readable silhouette.")
+NEGATIVE = ("blurry ugly bad, text, letters, numbers, watermark, frame, border, card, tile, app icon, rounded square, button, multiple objects, "
+            "grid, person, face, mannequin, hands, floor, scenery")
 
 # Every tier's material is named first and its colour spelled out, so the tiers read apart at a
 # glance: wood, bronze, iron, steel, dwarven steel, mithril; hide, leather, studded, wolfskin,
@@ -355,6 +365,19 @@ SHAPE = {   # plate, leather, robe, scale, mail, garb
 }
 
 
+# A base with no prompt of its own and no line to compose one from is drawn from its name.
+PLAIN = {
+    "weapon": "a fantasy weapon, a {}, shown whole from end to end on the diagonal",
+    "amulet": "a fantasy necklace, a {} hanging on its cord or chain",
+    "ring": "a single finger ring, a {}, the band seen at a slight angle",
+    "helm": "a piece of fantasy headgear, a {}, empty, with no head in it",
+    "armour": "a piece of fantasy body armour, a {}, empty, with no body in it",
+    "boots": "a pair of fantasy boots, {}",
+    "gloves": "a pair of fantasy gloves, {}",
+    "shield": "a fantasy shield, a {}, seen from the front",
+}
+
+
 def subject(base: dict) -> str | None:
     """The base's prompt subject: SUBJECTS' own, else composed from its slot, line and material."""
     if base["id"] in SUBJECTS:
@@ -362,21 +385,37 @@ def subject(base: dict) -> str | None:
     line = LINES.get(tuple(sorted(k for k in base.get("props", {}) if k != "block")))
     look = NAME_LOOK.get(base["name"].split()[0].lower()) or LOOK.get(base.get("material", ""))
     if base["slot"] not in SHAPE or line is None or look is None:
-        return None
+        name = base["name"].lower()
+        if "staff" in name or "rod" in name:
+            return f"a wizard's staff, a {name}: one long straight shaft with an ornament at its head, shown whole on the diagonal, not a sword"
+        return PLAIN.get(base["slot"], "a piece of fantasy equipment called {}").format(name)
     return f"{SHAPE[base['slot']][line]} {look}"
 
 
 def render(base: str, subject_text: str) -> bool:
     DRAFTS.mkdir(parents=True, exist_ok=True)
     result = subprocess.run(
-        ["node", str(GEN), "--prompt", "-", "--negative", NEGATIVE,
-         "--width", "768", "--height", "768", "--out", str(DRAFTS / f"{base}.png"), "--quiet"],
+        ["node", str(GEN), "--raw", "--prompt", "-", "--negative", NEGATIVE, "--size", "768",
+         "--seed", str(zlib.crc32(base.encode())), "--out", str(DRAFTS / f"{base}.png"), "--quiet"],
         input=FRAME.format(subject_text), capture_output=True, text=True, encoding="utf-8")
     line = (result.stdout.strip().splitlines() or ["{}"])[-1]
     try:
         return bool(json.loads(line).get("ok"))
     except json.JSONDecodeError:
         return False
+
+
+def place(bases) -> None:
+    """Each draft trimmed to its object and set in the middle of its square, a little room round it."""
+    ICONS.mkdir(exist_ok=True)
+    for base in bases:
+        draft = Image.open(DRAFTS / f"{base}.png").convert("RGBA")
+        box = draft.getchannel("A").point(lambda v: 255 if v > 24 else 0).getbbox() or (0, 0, *draft.size)
+        cut = draft.crop(box)
+        side = round(max(cut.size) * 1.08)
+        square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        square.paste(cut, ((side - cut.width) // 2, (side - cut.height) // 2))
+        square.resize((SIZE, SIZE), Image.LANCZOS).save(ICONS / f"{base}.png", optimize=True)
 
 
 def godot_import() -> None:
@@ -403,6 +442,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("bases", nargs="*")
     parser.add_argument("--no-render", action="store_true")
+    parser.add_argument("--all", action="store_true")
     args = parser.parse_args()
     catalog = json.loads((ROOT / "data" / "items.json").read_text(encoding="utf-8"))
     bases = {b["id"]: b for b in catalog["bases"]}
@@ -410,6 +450,8 @@ def main() -> None:
     live = [i for i, b in bases.items() if not b.get("retired")]
     if args.bases:
         todo = args.bases
+    elif args.all:
+        todo = [b for b in bases if subjects[b]]   # the retired too: old saves still hold them
     else:
         todo = [b for b in live if subjects[b] and not (ICONS / f"{b}.png").exists()]
         undrawn = [b for b in live if not subjects[b] and not (ICONS / f"{b}.png").exists()]
@@ -427,7 +469,7 @@ def main() -> None:
                 done.append(base)
         todo = done
     if todo:
-        frame_icons(todo)
+        place(todo)
         godot_import()
         print("imported", len(todo))
 

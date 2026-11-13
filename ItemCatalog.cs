@@ -36,8 +36,8 @@ public static class ItemCatalog
     public static string Root { get; set; } = "res://addons/arc_items";
 
     /// <summary>
-    /// The path of a base's icon (<c>icons/&lt;base&gt;.png</c>, square, the art carrying its own
-    /// frame; rarity-neutral, so a game tints it). For a base not drawn yet, the drawn one closest
+    /// The path of a base's icon (<c>icons/&lt;base&gt;.png</c>, square, the object alone on
+    /// nothing: no frame, no backdrop, so a game lays it on a tile of its own). For a base not drawn yet, the drawn one closest
     /// to it: a metal helm shows the Iron Helm, a leather one the Leather Cap, a mage's weapon the
     /// Oak Staff. Null for an unknown base.
     /// </summary>
