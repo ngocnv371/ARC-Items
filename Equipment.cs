@@ -30,6 +30,12 @@ public sealed class Equipment
 
     public string Archetype { get; }
 
+    /// <summary>
+    /// Lets the hero wear any class's items (a game whose classes only steer what drops and which
+    /// affixes roll, not what may be worn).
+    /// </summary>
+    public bool AnyClass { get; init; }
+
     public IEnumerable<Item> Worn => _worn.Values;
 
     /// <summary>Everything the worn items add, item by item (stats may repeat).</summary>
@@ -52,7 +58,7 @@ public sealed class Equipment
 
     public Item? In(ItemSlot slot) => _worn.GetValueOrDefault(slot);
 
-    public bool CanWear(Item item) => item.Def.Fits(Archetype);
+    public bool CanWear(Item item) => AnyClass || item.Def.Fits(Archetype);
 
     /// <summary>Puts <paramref name="item"/> on and returns what it replaced (null if the slot was empty or the class can't wear it).</summary>
     public Item? Equip(Item item)
