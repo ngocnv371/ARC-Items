@@ -111,6 +111,12 @@ public sealed record ItemBase(
     bool Starter = false,
     bool Retired = false)
 {
+    /// <summary>
+    /// What kind of thing it is within its slot, when its data says ("kind"): a warrior's weapon
+    /// that is a "sword" rather than an axe. A game may ask for one (a skill only a sword can do).
+    /// </summary>
+    public string? Kind { get; init; }
+
     public bool Fits(string archetype) => Classes.Length == 0 || Classes.Contains(archetype);
 
     /// <summary>The baseline roll for <paramref name="stat"/>, or null when this base has none.</summary>

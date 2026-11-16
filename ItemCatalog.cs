@@ -232,7 +232,10 @@ public static class ItemCatalog
                 b.TryGetValue("material", out var material) ? material.AsString() : null,
                 b.TryGetValue("weight", out var weight) ? weight.AsSingle() : 1f,
                 b.TryGetValue("starter", out var starter) && starter.AsBool(),
-                b.TryGetValue("retired", out var retired) && retired.AsBool());
+                b.TryGetValue("retired", out var retired) && retired.AsBool())
+            {
+                Kind = b.TryGetValue("kind", out var kind) ? kind.AsString() : null,
+            };
             _bases[def.Id] = def;
         }
         foreach (var a in Entries(root, "affixes"))

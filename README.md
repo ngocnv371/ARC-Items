@@ -95,6 +95,9 @@ A game that doesn't implement `block` never drops a shield. `of Deflection` adds
 shield.
 
 Weapons climb the same way, one line per class (axes, bows, staves), from item level 1 to 75.
+A warrior has a second line, swords: a little less damage than the axe of their tier, and each
+with faster attacks as its implicit. A sword's base says `"kind": "sword"` (`ItemBase.Kind`), so a
+game can ask for one.
 Within a slot, a base drops
 half as often for every `baseFalloff` (17) levels it lies below the item level: newer tiers take
 over, older ones linger. Every slot is equally likely.

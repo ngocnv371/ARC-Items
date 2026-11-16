@@ -117,6 +117,23 @@ SUBJECTS = {
                       "gleaming mirror sharp edges, on a long haft with a steel spike on top",
     "runed_dwarven_axe": "an ornate dwarven war axe of dark gunmetal steel with heavy gold trim, its "
                          "broad blade engraved with glowing orange angular runes, a gold banded haft",
+    # Swords, by tier.
+    "shortsword": "a short one handed sword with a plain straight grey iron blade, a small crossguard "
+                  "and a leather wrapped grip, simple and light",
+    "bronze_sword": "a one handed leaf bladed sword of gleaming warm golden orange bronze, with a "
+                    "bronze crossguard and a grip wrapped in leather",
+    "broadsword": "a broad one handed sword with a wide flat dark grey hammered iron blade, a heavy "
+                  "straight crossguard and a round pommel",
+    "iron_longsword": "a long straight two handed longsword of dark grey iron, a slender blade with a "
+                      "fuller down its middle, a wide crossguard and a long leather grip",
+    "goblin_machete": "a crude goblin machete, a wide chopping blade of rusty scrap metal with a "
+                      "ragged notched edge, its handle wrapped in dirty rags",
+    "steel_greatsword": "a huge two handed greatsword of bright polished silver steel, a very long "
+                        "wide straight blade with gleaming mirror sharp edges and a long grip",
+    "great_scimitar": "a great two handed scimitar of bright polished steel, a long broad blade "
+                      "curving back to a flared point, with a golden crossguard",
+    "runed_dwarven_sword": "an ornate dwarven sword of dark gunmetal steel with heavy gold trim, its "
+                           "broad straight blade engraved with glowing orange angular runes, a gold banded grip",
     # Bows, by tier.
     "worn_shortbow": "a plain old short wooden bow, scuffed and worn, with a frayed string and a cloth grip",
     "shortbow": "a small simple short bow of pale wood with a plain string and a leather grip",
